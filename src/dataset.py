@@ -3,6 +3,7 @@ import os
 import cv2
 import pandas as pd
 from torch.utils.data import Dataset
+import jpeg4py as jpeg
 
 
 IGNORE_IDS = [
@@ -13,6 +14,11 @@ IGNORE_IDS = [
 def load_image(path):
     image = cv2.imread(path)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    return image
+
+
+def load_jpeg_image(path):
+    image = jpeg.JPEG(path).decode()
     return image
 
 

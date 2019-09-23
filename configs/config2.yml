@@ -19,7 +19,7 @@ stages:
     minimize_metric: True
 
   criterion_params:
-    criterion: &criterion BCEWithLogitsLoss
+    criterion: &criterion LogLoss
 
   data_params:
     batch_size: 64

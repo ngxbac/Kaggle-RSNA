@@ -13,3 +13,5 @@ registry.Model(TIMMModels)
 
 # Register callbacks
 registry.Callback(MultiTaskCriterionCallback)
+
+registry.Criterion(LogLoss)

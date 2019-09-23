@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-export CUDA_VISIBLE_DEVICES=2
+export CUDA_VISIBLE_DEVICES=3
 RUN_CONFIG=config.yml
 
 
 for fold in 0; do
     #stage 1
-    log_name=resnet50-baseline-$fold
+    log_name=resnet50-baseline-LogLoss-$fold
     LOGDIR=/logs/rsna/test/${log_name}/
     catalyst-dl run \
         --config=./configs/${RUN_CONFIG} \
