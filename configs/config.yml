@@ -29,6 +29,7 @@ stages:
     image_size: &image_size [224, 224]
     train_csv: "./csv/stratified_kfold/train_0.csv.gz"
     valid_csv: "./csv/stratified_kfold/valid_0.csv.gz"
+    with_any: True
     root: "/data/stage_1_train_images_jpg/"
 
   warmup:

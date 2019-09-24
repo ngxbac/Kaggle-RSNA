@@ -29,6 +29,7 @@ stages:
     image_size: &image_size [224, 224]
     train_csv: "./csv/stratified_kfold/train_0.csv.gz"
     valid_csv: "./csv/stratified_kfold/valid_0.csv.gz"
+    with_any: True
     root: "/data/stage_1_train_images_jpg/"
 
   warmup:
@@ -42,7 +43,7 @@ stages:
       gamma: 0.3
 
     state_params:
-      num_epochs: 5
+      num_epochs: 3
 
     callbacks_params: &callbacks_params
       loss:
@@ -50,8 +51,9 @@ stages:
       optimizer:
         callback: OptimizerCallback
         accumulation_steps: 1
-#      dice:
-#        callback: DiceCallback
+      early_stoping:
+        callback: EarlyStoppingCallback
+        patience: 2
       scheduler:
         callback: SchedulerCallback
         reduce_metric: *reduce_metric
@@ -65,14 +67,18 @@ stages:
       lr: 0.0001
 
     scheduler_params:
-      scheduler: OneCycleLR
-      num_steps: &num_epochs 25
-      lr_range: [0.0005, 0.00001]
-      warmup_steps: 5
-      momentum_range: [0.85, 0.95]
+      scheduler: ReduceLROnPlateau
+      patience: 0
+      min_lr: 0.00001
+      verbose: True
+#      scheduler: OneCycleLR
+#      num_steps: &num_epochs 25
+#      lr_range: [0.0005, 0.00001]
+#      warmup_steps: 5
+#      momentum_range: [0.85, 0.95]
 
     state_params:
-      num_epochs: *num_epochs
+      num_epochs: 5
 
     callbacks_params: *callbacks_params
 

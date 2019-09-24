@@ -10,6 +10,9 @@ IGNORE_IDS = [
     'ID_6431af929',
 ]
 
+LABEL_COLS = ["epidural", "intraparenchymal", "intraventricular", "subarachnoid", "subdural", "any"]
+LABEL_COLS_WITHOUT_ANY = ["epidural", "intraparenchymal", "intraventricular", "subarachnoid", "subdural"]
+
 
 def load_image(path):
     image = cv2.imread(path)
@@ -23,14 +26,18 @@ def load_jpeg_image(path):
 
 
 class RSNADataset(Dataset):
-    def __init__(self, csv_file, root, transform):
+    def __init__(self, csv_file, root, with_any, transform):
         if isinstance(csv_file, pd.DataFrame):
             df = csv_file
         else:
             df = pd.read_csv(csv_file)
         df = df[~df['ID'].isin(IGNORE_IDS)]
         self.ids = df['ID'].values
-        self.labels = df[["epidural", "intraparenchymal", "intraventricular", "subarachnoid", "subdural", "any"]].values
+        self.with_any = with_any
+        if with_any:
+            self.labels = df[LABEL_COLS].values
+        else:
+            self.labels = df[LABEL_COLS_WITHOUT_ANY].values
         self.root = root
         self.transform = transform
 

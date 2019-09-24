@@ -21,6 +21,28 @@ class Experiment(ConfigExperiment):
         model_ = model
         if isinstance(model, torch.nn.DataParallel):
             model_ = model_.module
+
+        if stage == "warmup":
+            if hasattr(model_, 'freeze'):
+                model_.freeze()
+                print("Freeze backbone model !!!")
+            else:
+                for param in model_.parameters():
+                    param.requires_grad = False
+
+                for param in model_.get_classifier().parameters():
+                    param.requires_grad = True
+                print("Freeze backbone model !!!")
+
+        else:
+            if hasattr(model_, 'unfreeze'):
+                model_.unfreeze()
+                print("Unfreeze backbone model !!!")
+            else:
+                for param in model_.parameters():
+                    param.requires_grad = True
+
+                print("Unfreeze backbone model !!!")
         #
         # import apex
         # model_ = apex.parallel.convert_syncbn_model(model_)
@@ -38,6 +60,7 @@ class Experiment(ConfigExperiment):
         image_size = kwargs.get("image_size", [224, 224])
         train_csv = kwargs.get('train_csv', None)
         valid_csv = kwargs.get('valid_csv', None)
+        with_any = kwargs.get('with_any', True)
         root = kwargs.get('root', None)
 
         if train_csv:
@@ -45,6 +68,7 @@ class Experiment(ConfigExperiment):
             train_set = RSNADataset(
                 csv_file=train_csv,
                 root=root,
+                with_any=with_any,
                 transform=transform
             )
             datasets["train"] = train_set
@@ -54,6 +78,7 @@ class Experiment(ConfigExperiment):
             valid_set = RSNADataset(
                 csv_file=valid_csv,
                 root=root,
+                with_any=with_any,
                 transform=transform
             )
             datasets["valid"] = valid_set

@@ -2,6 +2,11 @@ from cnn_finetune import make_model
 from timm import create_model
 
 
+def timm_freeze(self):
+    for param in self.parameters():
+        param.requires_grad = False
+
+
 def TIMMModels(model_name, pretrained=True, num_classes=6, in_chans=3):
     model = create_model(
         model_name=model_name,

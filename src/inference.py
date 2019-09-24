@@ -36,13 +36,22 @@ def predict_test():
     image_size = [224, 224]
     backbone = "resnet50"
     fold = 0
-    scheme = f"{backbone}-baseline-{fold}"
+    scheme = f"{backbone}-baseline-warmup2-{fold}"
 
     log_dir = f"/logs/rsna/test/{scheme}/"
 
+    with_any = True
+
+    if with_any:
+        num_classes = 6
+        target_cols = LABEL_COLS
+    else:
+        num_classes = 5
+        target_cols = LABEL_COLS_WITHOUT_ANY
+
     model = TIMMModels(
         model_name=backbone,
-        num_classes=6
+        num_classes=num_classes
     )
 
     ckp = os.path.join(log_dir, "checkpoints/best.pth")
@@ -57,6 +66,7 @@ def predict_test():
     test_dataset = RSNADataset(
         csv_file=test_csv,
         root=test_root,
+        with_any=with_any,
         transform=valid_aug(image_size)
     )
 
@@ -74,7 +84,6 @@ def predict_test():
 
     test_df = pd.read_csv(test_csv)
     test_ids = test_df['ID'].values
-    target_cols = ["epidural", "intraparenchymal", "intraventricular", "subarachnoid", "subdural", "any"]
 
     ids = []
     labels = []
@@ -84,6 +93,10 @@ def predict_test():
             id_target = id + "_" + target
             ids.append(id_target)
             labels.append(pred[j])
+        if not with_any:
+            id_target = id + "_" + "any"
+            ids.append(id_target)
+            labels.append(pred.max())
 
     submission_df = pd.DataFrame({
         'ID': ids,
