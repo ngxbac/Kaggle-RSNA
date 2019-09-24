@@ -6,7 +6,7 @@ RUN_CONFIG=config2.yml
 
 for fold in 0; do
     #stage 1
-    log_name=resnet50-baseline-warmup2-$fold
+    log_name=resnet50-warmup2-moreaug-$fold
     LOGDIR=/logs/rsna/test/${log_name}/
     catalyst-dl run \
         --config=./configs/${RUN_CONFIG} \

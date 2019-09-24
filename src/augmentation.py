@@ -6,8 +6,14 @@ import itertools
 def train_aug(image_size):
     return Compose([
         Resize(*image_size),
-        Rotate(10),
+        # Rotate(10),
         HorizontalFlip(),
+        OneOf([
+            ElasticTransform(alpha=120, sigma=120 * 0.05, alpha_affine=120 * 0.03),
+            GridDistortion(),
+            OpticalDistortion(distort_limit=2, shift_limit=0.5),
+        ], p=0.3),
+        ShiftScaleRotate(shift_limit=0.05, scale_limit=0.1, rotate_limit=10),
         Normalize()
     ], p=1)
 
