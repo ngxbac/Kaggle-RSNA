@@ -39,5 +39,19 @@ def extract_images(
     Parallel(n_jobs=8)(delayed(convert_dicom_to_jpg)(file, outputdir) for file in tqdm(files, total=len(files)))
 
 
+def split_by_patient(
+    train_csv,
+    train_meta_csv,
+    n_folds,
+    outdir
+):
+    os.makedirs(outdir, exist_ok=True)
+    train_df = pd.read_csv(train_csv)
+    train_meta_df = pd.read_csv(train_meta_csv)
+    train_meta_df['ID'] = train_meta_df['ID'].apply(lambda x: "_".join(x.split("_")[:2]))
+    train_meta_df = train_meta_df[['ID', 'PatientID']]
+
+
+
 if __name__ == '__main__':
     cli()

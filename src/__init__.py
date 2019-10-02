@@ -15,3 +15,6 @@ registry.Model(TIMMModels)
 registry.Callback(MultiTaskCriterionCallback)
 
 registry.Criterion(LogLoss)
+
+registry.Optimizer(Nadam)
+registry.Optimizer(AdamW)

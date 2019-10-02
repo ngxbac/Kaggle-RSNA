@@ -24,8 +24,8 @@ class Experiment(ConfigExperiment):
 
         if stage == "warmup":
             if hasattr(model_, 'freeze'):
-                model_.freeze()
-                print("Freeze backbone model !!!")
+                model_.freeze(model_)
+                print("Freeze backbone model using freeze method !!!")
             else:
                 for param in model_.parameters():
                     param.requires_grad = False
@@ -36,8 +36,8 @@ class Experiment(ConfigExperiment):
 
         else:
             if hasattr(model_, 'unfreeze'):
-                model_.unfreeze()
-                print("Unfreeze backbone model !!!")
+                model_.unfreeze(model_)
+                print("Unfreeze backbone model using unfreeze method !!!")
             else:
                 for param in model_.parameters():
                     param.requires_grad = True

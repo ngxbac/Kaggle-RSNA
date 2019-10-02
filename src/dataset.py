@@ -31,8 +31,9 @@ class RSNADataset(Dataset):
             df = csv_file
         else:
             df = pd.read_csv(csv_file)
-        df = df[~df['ID'].isin(IGNORE_IDS)]
-        self.ids = df['ID'].values
+        ID_col = "Image" if "Image" in df.columns else "ID"
+        df = df[~df[ID_col].isin(IGNORE_IDS)]
+        self.ids = df[ID_col].values
         self.with_any = with_any
         if with_any:
             self.labels = df[LABEL_COLS].values

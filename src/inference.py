@@ -36,7 +36,7 @@ def predict_test():
     image_size = [224, 224]
     backbone = "resnet50"
     fold = 0
-    scheme = f"{backbone}-warmup2-moreaug-{fold}"
+    scheme = f"{backbone}-weight-adamw-224-{fold}"
 
     log_dir = f"/logs/rsna/test/{scheme}/"
 
@@ -49,7 +49,7 @@ def predict_test():
         num_classes = 5
         target_cols = LABEL_COLS_WITHOUT_ANY
 
-    model = TIMMModels(
+    model = CNNFinetuneModels(
         model_name=backbone,
         num_classes=num_classes
     )
@@ -136,7 +136,7 @@ def multi_weighted_logloss(y_ohe, y_p, class_weight):
 
 def predict_pred():
     fold = 0
-    test_csv = f"./csv/stratified_kfold/valid_{fold}.csv.gz"
+    test_csv = f"./csv/random_kfold/valid_{fold}.csv.gz"
     test_root = "/data/stage_1_train_images_jpg/"
 
     image_size = [224, 224]
@@ -162,7 +162,8 @@ def predict_pred():
     test_dataset = RSNADataset(
         csv_file=test_csv,
         root=test_root,
-        transform=valid_aug(image_size)
+        transform=valid_aug(image_size),
+        with_any=True
     )
 
     test_loader = DataLoader(

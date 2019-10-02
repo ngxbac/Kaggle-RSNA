@@ -9,7 +9,7 @@ class LogLoss(nn.BCEWithLogitsLoss):
         if weight is None:
             pass
         else:
-            self.weight = torch.tensor(weight, requires_grad=False, dtype=torch.float32).cuda()
+            weight = torch.tensor(weight, requires_grad=False, dtype=torch.float32).cuda()
 
         super(LogLoss, self).__init__(
             weight=weight,
