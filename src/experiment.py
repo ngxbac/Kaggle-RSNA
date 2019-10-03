@@ -61,26 +61,45 @@ class Experiment(ConfigExperiment):
         train_csv = kwargs.get('train_csv', None)
         valid_csv = kwargs.get('valid_csv', None)
         with_any = kwargs.get('with_any', True)
+        dataset_type = kwargs.get('dataset_type', 'RSNADataset')
         root = kwargs.get('root', None)
 
         if train_csv:
             transform = train_aug(image_size)
-            train_set = RSNADataset(
-                csv_file=train_csv,
-                root=root,
-                with_any=with_any,
-                transform=transform
-            )
+            if dataset_type == 'RSNADataset':
+                train_set = RSNADataset(
+                    csv_file=train_csv,
+                    root=root,
+                    with_any=with_any,
+                    transform=transform,
+                    mode='train'
+                )
+            else:
+                train_set = RSNAMultiWindowsDataset(
+                    csv_file=train_csv,
+                    root=root,
+                    with_any=with_any,
+                    transform=transform
+                )
             datasets["train"] = train_set
 
         if valid_csv:
             transform = valid_aug(image_size)
-            valid_set = RSNADataset(
-                csv_file=valid_csv,
-                root=root,
-                with_any=with_any,
-                transform=transform
-            )
+            if dataset_type == 'RSNADataset':
+                valid_set = RSNADataset(
+                    csv_file=valid_csv,
+                    root=root,
+                    with_any=with_any,
+                    transform=transform,
+                    mode='valid'
+                )
+            else:
+                valid_set = RSNAMultiWindowsDataset(
+                    csv_file=valid_csv,
+                    root=root,
+                    with_any=with_any,
+                    transform=transform
+                )
             datasets["valid"] = valid_set
 
         return datasets

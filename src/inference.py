@@ -36,7 +36,7 @@ def predict_test():
     image_size = [224, 224]
     backbone = "resnet50"
     fold = 0
-    scheme = f"{backbone}-weight-adamw-224-{fold}"
+    scheme = f"{backbone}-balance-224-20ep-{fold}"
 
     log_dir = f"/logs/rsna/test/{scheme}/"
 
@@ -67,7 +67,8 @@ def predict_test():
         csv_file=test_csv,
         root=test_root,
         with_any=with_any,
-        transform=valid_aug(image_size)
+        transform=valid_aug(image_size),
+        mode="test"
     )
 
     test_loader = DataLoader(

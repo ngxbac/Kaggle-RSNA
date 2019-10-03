@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import os
 import click
@@ -14,15 +15,28 @@ def cli():
     print("CLI")
 
 
+windows_range = {
+    'brain': [40, 80],
+    'bone': [600, 2800],
+    'subdual': [75, 215]
+}
+
+
 def convert_dicom_to_jpg(dicomfile, outputdir):
     try:
         data = pydicom.read_file(dicomfile)
         image = data.pixel_array
         window_center, window_width, intercept, slope = get_windowing(data)
-        image_windowed = window_image(image, window_center, window_width, intercept, slope)
         id = dicomfile.split("/")[-1].split(".")[0]
+
+        images = []
+        for k, v in windows_range.items():
+            image_windowed = window_image(image, v[0], v[1], intercept, slope)
+            images.append(image_windowed)
+
+        images = np.asarray(images).transpose((1, 2, 0))
         output_image = os.path.join(outputdir, id + ".jpg")
-        cv2.imwrite(output_image, image_windowed)
+        cv2.imwrite(output_image, images)
     except:
         print(dicomfile)
 

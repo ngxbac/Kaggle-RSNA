@@ -30,6 +30,7 @@ stages:
     image_size: &image_size [224, 224]
     train_csv: "./csv/stratified_kfold/train_0.csv.gz"
     valid_csv: "./csv/stratified_kfold/valid_0.csv.gz"
+#    dataset_type: "RSNAMultiWindowsDataset"
     with_any: True
     root: "/data/stage_1_train_images_jpg/"
 
@@ -49,16 +50,10 @@ stages:
     callbacks_params: &callbacks_params
       loss:
         callback: CriterionCallback
-#        callback: MixupCallback
-#        fields: ['images', 'targets']
-#        alpha: 0.2
 
       optimizer:
         callback: OptimizerCallback
         accumulation_steps: 1
-      early_stoping:
-        callback: EarlyStoppingCallback
-        patience: 2
       scheduler:
         callback: SchedulerCallback
         reduce_metric: *reduce_metric
@@ -86,7 +81,23 @@ stages:
     state_params:
       num_epochs: 20
 
-    callbacks_params: *callbacks_params
+    callbacks_params:
+      loss:
+        callback: CriterionCallback
+
+      optimizer:
+        callback: OptimizerCallback
+        accumulation_steps: 1
+      scheduler:
+        callback: SchedulerCallback
+        reduce_metric: *reduce_metric
+      saver:
+        callback: CheckpointCallback
+        save_n_best: 5
+
+      early_stoping:
+        callback: EarlyStoppingCallback
+        patience: 2
 
 monitoring_params:
   project: "Kaggle-RSNA"
