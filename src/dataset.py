@@ -4,7 +4,8 @@ import cv2
 import pandas as pd
 from torch.utils.data import Dataset
 import jpeg4py as jpeg
-
+from utils import get_windowing, window_image
+import pydicom
 
 IGNORE_IDS = [
     'ID_6431af929',
@@ -18,6 +19,23 @@ windows_range = {
 
 LABEL_COLS = ["epidural", "intraparenchymal", "intraventricular", "subarachnoid", "subdural", "any"]
 LABEL_COLS_WITHOUT_ANY = ["epidural", "intraparenchymal", "intraventricular", "subarachnoid", "subdural"]
+
+
+def load_dicom_image(path):
+    data = pydicom.read_file(path)
+    image = data.pixel_array
+    window_center, window_width, intercept, slope = get_windowing(data)
+    images = []
+    image_windowed = window_image(image, window_center, window_width, intercept, slope)
+    images.append(image_windowed)
+
+    for k, v in windows_range.items():
+        image_windowed = window_image(image, v[0], v[1], intercept, slope)
+        images.append(image_windowed)
+
+    images = np.asarray(images).transpose((1, 2, 0))
+    images = images / 255
+    return images
 
 
 def load_image(path):
@@ -84,6 +102,32 @@ class RSNADataset(Dataset):
 
         image = os.path.join(self.root, id + ".jpg")
         image = load_image(image)
+
+        if self.transform:
+            augmented = self.transform(image=image)
+            image = augmented['image']
+
+        image = np.transpose(image, (2, 0, 1)).astype(np.float32)
+
+        return {
+            'images': image,
+            'targets': label
+        }
+
+
+class RSNADicomDataset(RSNADataset):
+    def __init__(self, csv_file, root, with_any, transform, mode='train'):
+        super(RSNADicomDataset, self).__init__(csv_file, root, with_any, transform, mode)
+
+    def __len__(self):
+        return len(self.ids)
+
+    def __getitem__(self, idx):
+        id = self.ids[idx]
+        label = self.labels[idx].astype(np.float32)
+
+        image = os.path.join(self.root, id + ".dcm")
+        image = load_dicom_image(image)
 
         if self.transform:
             augmented = self.transform(image=image)

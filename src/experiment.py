@@ -74,13 +74,22 @@ class Experiment(ConfigExperiment):
                     transform=transform,
                     mode='train'
                 )
-            else:
+            elif dataset_type == 'RSNAMultiWindowsDataset':
                 train_set = RSNAMultiWindowsDataset(
                     csv_file=train_csv,
                     root=root,
                     with_any=with_any,
                     transform=transform
                 )
+            elif dataset_type == 'RSNADicomDataset':
+                train_set = RSNADicomDataset(
+                    csv_file=train_csv,
+                    root=root,
+                    with_any=with_any,
+                    transform=transform
+                )
+            else:
+                raise("No Dataset: {}".format(dataset_type))
             datasets["train"] = train_set
 
         if valid_csv:
@@ -93,13 +102,22 @@ class Experiment(ConfigExperiment):
                     transform=transform,
                     mode='valid'
                 )
-            else:
+            elif dataset_type == 'RSNAMultiWindowsDataset':
                 valid_set = RSNAMultiWindowsDataset(
                     csv_file=valid_csv,
                     root=root,
                     with_any=with_any,
                     transform=transform
                 )
+            elif dataset_type == 'RSNADicomDataset':
+                valid_set = RSNADicomDataset(
+                    csv_file=valid_csv,
+                    root=root,
+                    with_any=with_any,
+                    transform=transform
+                )
+            else:
+                raise("No Dataset: {}".format(dataset_type))
             datasets["valid"] = valid_set
 
         return datasets

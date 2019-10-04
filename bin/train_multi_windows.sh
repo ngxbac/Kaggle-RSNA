@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-export CUDA_VISIBLE_DEVICES=2
-RUN_CONFIG=config.yml
+export CUDA_VISIBLE_DEVICES=3
+RUN_CONFIG=config_multi_windows.yml
 
 
 for fold in 0; do
     #stage 1
-    log_name=resnet50-multi-windows-balance-224-20ep-p2-dropchannel-$fold
+    log_name=resnet50-mw-dcom-$fold
     LOGDIR=/logs/rsna/test/${log_name}/
     catalyst-dl run \
         --config=./configs/${RUN_CONFIG} \

@@ -14,7 +14,8 @@ def train_aug(image_size):
             OpticalDistortion(distort_limit=2, shift_limit=0.5),
         ], p=0.3),
         ShiftScaleRotate(shift_limit=0.05, scale_limit=0.1, rotate_limit=10),
-        Normalize()
+        # ChannelDropout(),
+        # Normalize()
     ], p=1)
 
 
