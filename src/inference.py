@@ -31,12 +31,12 @@ def predict(model, loader):
 
 def predict_test():
     test_csv = "./csv/stage_1_test.csv.gz"
-    test_root = "/data/stage_1_test_images_jpg/"
+    test_root = "/data/stage_1_test_3w/"
 
     image_size = [224, 224]
     backbone = "resnet50"
     fold = 0
-    scheme = f"{backbone}-balance-224-20ep-{fold}"
+    scheme = f"{backbone}-multi-windows-balance-224-20ep-p2-{fold}"
 
     log_dir = f"/logs/rsna/test/{scheme}/"
 
@@ -104,7 +104,7 @@ def predict_test():
         'Label': labels
     })
 
-    submission_df.to_csv(f"/logs/prediction/{scheme}/submission_{fold}.csv", index=False)
+    submission_df.to_csv(f"/logs/prediction/{scheme}/{scheme}.csv", index=False)
 
 
 def multi_weighted_logloss(y_ohe, y_p, class_weight):
