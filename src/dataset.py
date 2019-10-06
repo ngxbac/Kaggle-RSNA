@@ -44,6 +44,11 @@ def load_image(path):
     return image
 
 
+def load_random_windows(path, id):
+    random_window = np.random.choice(['brain', 'bone', 'subdual'], 1)[0]
+    return load_image(os.path.join(path, random_window, id + ".jpg"))
+
+
 def load_multi_images(root, image_name):
     images = []
     for i, (k, v) in enumerate(windows_range.items()):
@@ -74,6 +79,9 @@ def get_balance_set(df):
 
 
 class RSNADataset(Dataset):
+    """
+    Read JPG images
+    """
     def __init__(self, csv_file, root, with_any, transform, mode='train'):
         if isinstance(csv_file, pd.DataFrame):
             df = csv_file
@@ -81,7 +89,8 @@ class RSNADataset(Dataset):
             print(csv_file)
             df = pd.read_csv(csv_file)
         if mode == 'train':
-            df = get_balance_set(df)
+            df = df
+            #df = get_balance_set(df)
         ID_col = "Image" if "Image" in df.columns else "ID" if "ID" in df.columns else "sop_instance_uid"
         df = df[~df[ID_col].isin(IGNORE_IDS)]
         self.ids = df[ID_col].values
@@ -115,7 +124,33 @@ class RSNADataset(Dataset):
         }
 
 
+class RSNARandomWindowDataset(RSNADataset):
+    """
+    Random select bone, brain and subdual during the training
+    """
+
+    def __getitem__(self, idx):
+        id = self.ids[idx]
+        label = self.labels[idx].astype(np.float32)
+
+        image = load_random_windows(self.root, id)
+
+        if self.transform:
+            augmented = self.transform(image=image)
+            image = augmented['image']
+
+        image = np.transpose(image, (2, 0, 1)).astype(np.float32)
+
+        return {
+            'images': image,
+            'targets': label
+        }
+
+
 class RSNADicomDataset(RSNADataset):
+    """
+    load dicom image directly. windows are applied on the fly.
+    """
     def __init__(self, csv_file, root, with_any, transform, mode='train'):
         super(RSNADicomDataset, self).__init__(csv_file, root, with_any, transform, mode)
 
@@ -142,6 +177,9 @@ class RSNADicomDataset(RSNADataset):
 
 
 class RSNAMultiWindowsDataset(Dataset):
+    """
+    Read all window images then concatinate.
+    """
     def __init__(self, csv_file, root, with_any, transform):
         if isinstance(csv_file, pd.DataFrame):
             df = csv_file

@@ -36,7 +36,7 @@ def predict_test():
     image_size = [224, 224]
     backbone = "resnet50"
     fold = 0
-    scheme = f"{backbone}-mw-224-lr-scale-{fold}"
+    scheme = f"{backbone}-rndmw-224-{fold}"
 
     log_dir = f"/logs/rsna/test/{scheme}/"
 
@@ -110,6 +110,92 @@ def predict_test():
     })
 
     submission_df.to_csv(f"/logs/prediction/{scheme}/{scheme}.csv", index=False)
+
+
+def predict_tta_window():
+    test_csv = "./csv/stage_1_test.csv.gz"
+
+
+    image_size = [224, 224]
+    backbone = "resnet50"
+    fold = 0
+    scheme = f"{backbone}-rndmw-224-{fold}"
+
+    log_dir = f"/logs/rsna/test/{scheme}/"
+
+    with_any = True
+
+    if with_any:
+        num_classes = 6
+        target_cols = LABEL_COLS
+    else:
+        num_classes = 5
+        target_cols = LABEL_COLS_WITHOUT_ANY
+
+    model = CNNFinetuneModels(
+        model_name=backbone,
+        num_classes=num_classes,
+        in_chans=3
+    )
+
+    ckp = os.path.join(log_dir, f"checkpoints/best.pth")
+    checkpoint = torch.load(ckp)
+    model.load_state_dict(checkpoint['model_state_dict'])
+    model = nn.DataParallel(model)
+    model = model.to(device)
+
+    print("*" * 50)
+    print(f"checkpoint: {ckp}")
+
+    test_preds = 0
+
+    for window in ["bone", "subdual", "brain"]:
+        test_root = f"/data/stage_1_test/{window}/"
+        test_dataset = RSNADataset(
+            csv_file=test_csv,
+            root=test_root,
+            with_any=with_any,
+            transform=valid_aug(image_size),
+            mode="test"
+        )
+
+        test_loader = DataLoader(
+            dataset=test_dataset,
+            batch_size=32,
+            shuffle=False,
+            num_workers=8,
+        )
+
+
+
+        test_preds += predict(model, test_loader) / 3
+
+    os.makedirs(f"/logs/prediction/{scheme}", exist_ok=True)
+    np.save(f"/logs/prediction/{scheme}/test_{fold}.npy", test_preds)
+
+    test_df = pd.read_csv(test_csv)
+    test_ids = test_df['ID'].values
+
+    ids = []
+    labels = []
+    for i, id in enumerate(test_ids):
+        pred = test_preds[i]
+        for j, target in enumerate(target_cols):
+            id_target = id + "_" + target
+            ids.append(id_target)
+            labels.append(pred[j])
+        if not with_any:
+            id_target = id + "_" + "any"
+            ids.append(id_target)
+            labels.append(pred.max())
+
+    submission_df = pd.DataFrame({
+        'ID': ids,
+        'Label': labels
+    })
+
+    submission_df.to_csv(f"/logs/prediction/{scheme}/{scheme}.csv", index=False)
+
 
 
 def multi_weighted_logloss(y_ohe, y_p, class_weight):
@@ -202,5 +288,6 @@ def predict_pred():
 
 
 if __name__ == '__main__':
-    predict_test()
+    # predict_test()
+    predict_tta_window()
     # predict_pred()

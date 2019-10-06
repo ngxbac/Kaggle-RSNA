@@ -37,17 +37,18 @@ def TIMMModels(model_name, pretrained=True, num_classes=6, in_chans=3):
         in_chans=3,
     )
 
-    conv1 = model.conv1
-    model.conv1 = nn.Conv2d(in_channels=in_chans,
-                                 out_channels=conv1.out_channels,
-                                 kernel_size=conv1.kernel_size,
-                                 stride=conv1.stride,
-                                 padding=conv1.padding,
-                                 bias=conv1.bias)
+    if in_chans > 3:
+        conv1 = model.conv1
+        model.conv1 = nn.Conv2d(in_channels=in_chans,
+                                     out_channels=conv1.out_channels,
+                                     kernel_size=conv1.kernel_size,
+                                     stride=conv1.stride,
+                                     padding=conv1.padding,
+                                     bias=conv1.bias)
 
-    # copy pretrained weights
-    model.conv1.weight.data[:, :3, :, :] = conv1.weight.data
-    model.conv1.weight.data[:, 3:in_chans, :, :] = conv1.weight.data[:, :int(in_chans - 3), :, :]
+        # copy pretrained weights
+        model.conv1.weight.data[:, :3, :, :] = conv1.weight.data
+        model.conv1.weight.data[:, 3:in_chans, :, :] = conv1.weight.data[:, :int(in_chans - 3), :, :]
 
     setattr(model, 'freeze', timm_freeze)
     setattr(model, 'unfreeze', timm_unfreeze)
@@ -72,17 +73,18 @@ def CNNFinetuneModels(model_name, pretrained=True, num_classes=6, dropout_p=None
         classifier_factory=make_classifier
     )
 
-    conv1 = model._features[0]
-    model._features[0] = nn.Conv2d(in_channels=in_chans,
-                                         out_channels=conv1.out_channels,
-                                         kernel_size=conv1.kernel_size,
-                                         stride=conv1.stride,
-                                         padding=conv1.padding,
-                                         bias=conv1.bias)
+    if in_chans > 3:
+        conv1 = model._features[0]
+        model._features[0] = nn.Conv2d(in_channels=in_chans,
+                                             out_channels=conv1.out_channels,
+                                             kernel_size=conv1.kernel_size,
+                                             stride=conv1.stride,
+                                             padding=conv1.padding,
+                                             bias=conv1.bias)
 
-    # copy pretrained weights
-    model._features[0].weight.data[:, :3, :, :] = conv1.weight.data
-    model._features[0].weight.data[:, 3:in_chans, :, :] = conv1.weight.data[:, :int(in_chans - 3), :, :]
+        # copy pretrained weights
+        model._features[0].weight.data[:, :3, :, :] = conv1.weight.data
+        model._features[0].weight.data[:, 3:in_chans, :, :] = conv1.weight.data[:, :int(in_chans - 3), :, :]
 
     setattr(model, 'freeze', cnnfinetune_freeze)
     setattr(model, 'unfreeze', cnnfinetune_unfreeze)

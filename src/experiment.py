@@ -88,6 +88,13 @@ class Experiment(ConfigExperiment):
                     with_any=with_any,
                     transform=transform
                 )
+            elif dataset_type == "RSNARandomWindowDataset":
+                train_set = RSNARandomWindowDataset(
+                    csv_file=train_csv,
+                    root=root,
+                    with_any=with_any,
+                    transform=transform
+                )
             else:
                 raise("No Dataset: {}".format(dataset_type))
             datasets["train"] = train_set
@@ -114,7 +121,16 @@ class Experiment(ConfigExperiment):
                     csv_file=valid_csv,
                     root=root,
                     with_any=with_any,
-                    transform=transform
+                    transform=transform,
+                    mode='valid'
+                )
+            elif dataset_type == "RSNARandomWindowDataset":
+                valid_set = RSNARandomWindowDataset(
+                    csv_file=valid_csv,
+                    root=root,
+                    with_any=with_any,
+                    transform=transform,
+                    mode='valid'
                 )
             else:
                 raise("No Dataset: {}".format(dataset_type))

@@ -23,16 +23,16 @@ stages:
     weight: [1,1,1,1,1,2]
 
   data_params:
-    batch_size: 64
+    batch_size: 128
     num_workers: 4
     drop_last: False
 
     image_size: &image_size [224, 224]
     train_csv: "./csv/stratified_kfold/train_0.csv.gz"
     valid_csv: "./csv/stratified_kfold/valid_0.csv.gz"
-#    dataset_type: "RSNAMultiWindowsDataset"
+    dataset_type: "RSNARandomWindowDataset"
     with_any: True
-    root: "/data/stage_1_train_images_jpg/"
+    root: "/data/stage_1_train/"
 
   warmup:
     optimizer_params:

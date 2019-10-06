@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-export CUDA_VISIBLE_DEVICES=3
+export CUDA_VISIBLE_DEVICES=2,3
 RUN_CONFIG=config.yml
 
 
-for fold in 0; do
+for fold in 0 1 2 3 4; do
     #stage 1
-    log_name=resnet50-mw-224-lr-scale-$fold
+    log_name=seresnext50-mw-512-$fold
     LOGDIR=/logs/rsna/test/${log_name}/
     catalyst-dl run \
         --config=./configs/${RUN_CONFIG} \
