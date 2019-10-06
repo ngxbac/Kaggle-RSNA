@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN pip install catalyst==19.09.1
+RUN pip install catalyst
 RUN pip install albumentations
 RUN pip install cnn_finetune
 RUN pip install timm

@@ -3,7 +3,7 @@ import os
 import cv2
 import pandas as pd
 from torch.utils.data import Dataset
-import jpeg4py as jpeg
+# import jpeg4py as jpeg
 from utils import get_windowing, window_image
 import pydicom
 
@@ -55,9 +55,9 @@ def load_multi_images(root, image_name):
     return images
 
 
-def load_jpeg_image(path):
-    image = jpeg.JPEG(path).decode()
-    return image
+# def load_jpeg_image(path):
+#     image = jpeg.JPEG(path).decode()
+#     return image
 
 
 import random

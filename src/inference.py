@@ -36,7 +36,7 @@ def predict_test():
     image_size = [224, 224]
     backbone = "resnet50"
     fold = 0
-    scheme = f"{backbone}-multi-windows-balance-224-20ep-p2-dropchannel-{fold}"
+    scheme = f"{backbone}-mw-224-lr-scale-{fold}"
 
     log_dir = f"/logs/rsna/test/{scheme}/"
 
@@ -48,20 +48,6 @@ def predict_test():
     else:
         num_classes = 5
         target_cols = LABEL_COLS_WITHOUT_ANY
-
-    model = CNNFinetuneModels(
-        model_name=backbone,
-        num_classes=num_classes
-    )
-
-    ckp = os.path.join(log_dir, "checkpoints/best.pth")
-    checkpoint = torch.load(ckp)
-    model.load_state_dict(checkpoint['model_state_dict'])
-    model = nn.DataParallel(model)
-    model = model.to(device)
-
-    print("*" * 50)
-    print(f"checkpoint: {ckp}")
 
     test_dataset = RSNADataset(
         csv_file=test_csv,
@@ -78,7 +64,26 @@ def predict_test():
         num_workers=8,
     )
 
-    test_preds = predict(model, test_loader)
+    test_preds = 0
+
+    list_checkpoints = [9]
+    for i in list_checkpoints:
+        model = CNNFinetuneModels(
+            model_name=backbone,
+            num_classes=num_classes,
+            in_chans=3
+        )
+
+        ckp = os.path.join(log_dir, f"checkpoints/stage1.{i}.pth")
+        checkpoint = torch.load(ckp)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        model = nn.DataParallel(model)
+        model = model.to(device)
+
+        print("*" * 50)
+        print(f"checkpoint: {ckp}")
+
+        test_preds += predict(model, test_loader) / len(list_checkpoints)
 
     os.makedirs(f"/logs/prediction/{scheme}", exist_ok=True)
     np.save(f"/logs/prediction/{scheme}/test_{fold}.npy", test_preds)

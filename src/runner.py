@@ -1,18 +1,23 @@
 from typing import Mapping, Any
-from catalyst.dl.runner import WandbRunner
+import torch.nn as nn
+from catalyst.dl.runner import SupervisedRunner
 from catalyst.dl.core import RunnerState
 from catalyst.contrib.optimizers import Lookahead
 
 
-class ModelRunner(WandbRunner):
-    def predict_batch(self, batch: Mapping[str, Any]):
-        output = self.model(batch["images"])
-        if isinstance(output, tuple):
-            return {
-                "logits": output[0],
-                "cls_logits": output[1]
-            }
-        else:
-            return {
-                "logits": output
-            }
+class ModelRunner(SupervisedRunner):
+    def __init__(
+            self,
+            model: nn.Module = None,
+            device=None,
+            input_key: str = "images",
+            output_key: str = "logits",
+            input_target_key: str = "targets",
+    ):
+        super(ModelRunner, self).__init__(
+            model=model,
+            device=device,
+            input_key=input_key,
+            output_key=output_key,
+            input_target_key=input_target_key
+        )

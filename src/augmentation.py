@@ -15,7 +15,7 @@ def train_aug(image_size):
         ], p=0.3),
         ShiftScaleRotate(shift_limit=0.05, scale_limit=0.1, rotate_limit=10),
         # ChannelDropout(),
-        # Normalize()
+        Normalize()
     ], p=1)
 
 
