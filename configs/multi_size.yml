@@ -48,7 +48,7 @@ stages:
       save_n_best: 5
     early_stoping:
       callback: EarlyStoppingCallback
-      patience: 2
+      patience: 3
 
 
   warmup:
@@ -102,7 +102,7 @@ stages:
       verbose: True
 
     state_params:
-      num_epochs: 10
+      num_epochs: 20
 
     # callbacks_params: *callbacks_params
 

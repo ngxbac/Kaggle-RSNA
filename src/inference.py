@@ -36,7 +36,7 @@ def predict_test():
     image_size = [512, 512]
     backbone = "resnet50"
     fold = 0
-    scheme = f"{backbone}-mw-msize-{fold}"
+    scheme = f"{backbone}-mw-512-recheck-{fold}"
 
     log_dir = f"/logs/rsna/test/{scheme}/"
 
