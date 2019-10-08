@@ -64,6 +64,8 @@ class Experiment(ConfigExperiment):
         dataset_type = kwargs.get('dataset_type', 'RSNADataset')
         root = kwargs.get('root', None)
 
+        print(f"Image Size: {image_size}")
+
         if train_csv:
             transform = train_aug(image_size)
             if dataset_type == 'RSNADataset':

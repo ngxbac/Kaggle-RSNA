@@ -89,8 +89,8 @@ class RSNADataset(Dataset):
             print(csv_file)
             df = pd.read_csv(csv_file)
         if mode == 'train':
-            df = df
-            #df = get_balance_set(df)
+            # df = df
+            df = get_balance_set(df)
         ID_col = "Image" if "Image" in df.columns else "ID" if "ID" in df.columns else "sop_instance_uid"
         df = df[~df[ID_col].isin(IGNORE_IDS)]
         self.ids = df[ID_col].values

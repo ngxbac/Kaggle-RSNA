@@ -33,10 +33,10 @@ def predict_test():
     test_csv = "./csv/stage_1_test.csv.gz"
     test_root = "/data/stage_1_test_3w/"
 
-    image_size = [224, 224]
+    image_size = [512, 512]
     backbone = "resnet50"
     fold = 0
-    scheme = f"{backbone}-rndmw-224-{fold}"
+    scheme = f"{backbone}-mw-msize-{fold}"
 
     log_dir = f"/logs/rsna/test/{scheme}/"
 
@@ -64,26 +64,24 @@ def predict_test():
         num_workers=8,
     )
 
-    test_preds = 0
+    # test_preds = 0
 
-    list_checkpoints = [9]
-    for i in list_checkpoints:
-        model = CNNFinetuneModels(
-            model_name=backbone,
-            num_classes=num_classes,
-            in_chans=3
-        )
+    model = CNNFinetuneModels(
+        model_name="resnet50",
+        num_classes=num_classes,
+        in_chans=3
+    )
 
-        ckp = os.path.join(log_dir, f"checkpoints/stage1.{i}.pth")
-        checkpoint = torch.load(ckp)
-        model.load_state_dict(checkpoint['model_state_dict'])
-        model = nn.DataParallel(model)
-        model = model.to(device)
+    ckp = os.path.join(log_dir, f"checkpoints/best.pth")
+    checkpoint = torch.load(ckp)
+    model.load_state_dict(checkpoint['model_state_dict'])
+    model = nn.DataParallel(model)
+    model = model.to(device)
 
-        print("*" * 50)
-        print(f"checkpoint: {ckp}")
+    print("*" * 50)
+    print(f"checkpoint: {ckp}")
 
-        test_preds += predict(model, test_loader) / len(list_checkpoints)
+    test_preds = predict(model, test_loader)
 
     os.makedirs(f"/logs/prediction/{scheme}", exist_ok=True)
     np.save(f"/logs/prediction/{scheme}/test_{fold}.npy", test_preds)
@@ -109,7 +107,7 @@ def predict_test():
         'Label': labels
     })
 
-    submission_df.to_csv(f"/logs/prediction/{scheme}/{scheme}.csv", index=False)
+    submission_df.to_csv(f"/logs/prediction/{scheme}/{scheme}_512.csv", index=False)
 
 
 def predict_tta_window():
@@ -288,6 +286,6 @@ def predict_pred():
 
 
 if __name__ == '__main__':
-    # predict_test()
-    predict_tta_window()
+    predict_test()
+    # predict_tta_window()
     # predict_pred()
