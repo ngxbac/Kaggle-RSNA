@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-export CUDA_VISIBLE_DEVICES=1
+export CUDA_VISIBLE_DEVICES=2,3
 RUN_CONFIG=multi_size.yml
 
 
 for fold in 0; do
     #stage 1
-    log_name=resnet34-mw-512-recheck-$fold
+    log_name=se_resnext50_32x4d-mw-512-recheck-$fold
     LOGDIR=/logs/rsna/test/${log_name}/
     catalyst-dl run \
         --config=./configs/${RUN_CONFIG} \

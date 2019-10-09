@@ -29,12 +29,15 @@ def valid_aug(image_size):
 def test_tta(image_size):
     test_dict = {
         'normal': Compose([
-            Resize(image_size, image_size)
-        ]),
-        # 'hflip': Compose([
-        #     HorizontalFlip(p=1),
-        #     Resize(image_size, image_size),
-        # ], p=1),
+            Resize(*image_size),
+            Normalize()
+        ], p=1),
+
+        'hflip': Compose([
+            Resize(*image_size),
+            HorizontalFlip(p=1),
+            Normalize()
+        ], p=1),
         # 'rot90': Compose([
         #     Rotate(limit=(90, 90), p=1),
         #     Resize(image_size, image_size),
