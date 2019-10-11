@@ -78,6 +78,14 @@ def get_balance_set(df):
     return df[df["patient_id"].isin(patients_balance)]
 
 
+from sklearn.preprocessing import MinMaxScaler
+meta_data_cols = [
+    'image_position_patient_0', 'image_position_patient_1', 'image_position_patient_2',
+    'image_orientation_patient_0', 'image_orientation_patient_2', 'image_orientation_patient_3',
+    'image_orientation_patient_4', 'image_orientation_patient_5'
+]
+
+
 class RSNADataset(Dataset):
     """
     Read JPG images
@@ -91,9 +99,17 @@ class RSNADataset(Dataset):
         if mode == 'train':
             # df = df
             df = get_balance_set(df)
+        if mode in ['train', 'valid']:
+            meta_data = pd.read_csv(f"/data/df_dicom_metadata_train.csv", usecols=meta_data_cols + ['sop_instance_uid'])
+        else:
+            meta_data = pd.read_csv(f"/data/df_dicom_metadata_test.csv", usecols=meta_data_cols + ['sop_instance_uid'])
+            df["sop_instance_uid"] = "ID_" + df["sop_instance_uid"]
+        meta_data = meta_data[meta_data['sop_instance_uid'].isin(df['sop_instance_uid'])]
+        df = df.merge(meta_data, on='sop_instance_uid', how='left')
         ID_col = "Image" if "Image" in df.columns else "ID" if "ID" in df.columns else "sop_instance_uid"
         df = df[~df[ID_col].isin(IGNORE_IDS)]
         self.ids = df[ID_col].values
+        self.metadata = df[meta_data_cols].values
         self.with_any = with_any
         if with_any:
             self.labels = df[LABEL_COLS].values
@@ -109,6 +125,11 @@ class RSNADataset(Dataset):
         id = self.ids[idx]
         label = self.labels[idx].astype(np.float32)
 
+        meta = self.metadata[idx].astype(np.float32)
+
+        if not "ID" in id:
+            id = "ID_" + id
+
         image = os.path.join(self.root, id + ".jpg")
         image = load_image(image)
 
@@ -120,7 +141,8 @@ class RSNADataset(Dataset):
 
         return {
             'images': image,
-            'targets': label
+            'targets': label,
+            'meta': meta
         }
 
 

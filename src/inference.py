@@ -20,6 +20,7 @@ def predict(model, loader):
     with torch.no_grad():
         for dct in tqdm(loader, total=len(loader)):
             images = dct['images'].to(device)
+            # meta = dct["meta"].to(device)
             pred = model(images)
             pred = Ftorch.sigmoid(pred)
             pred = pred.detach().cpu().numpy()
@@ -30,84 +31,92 @@ def predict(model, loader):
 
 
 def predict_test():
-    test_csv = "./csv/stage_1_test.csv.gz"
+    test_csv = "./csv/patient2_kfold/test.csv"
     test_root = "/data/stage_1_test_3w/"
 
     image_size = [512, 512]
-    backbone = "resnet34"
-    fold = 0
-    scheme = f"{backbone}-mw-512-recheck-{fold}"
+    backbone = "resnet50"
+    # fold = 2
+    for fold in [0]:
+        scheme = f"{backbone}-mw-512-{fold}"
 
-    log_dir = f"/logs/rsna/test/{scheme}/"
+        log_dir = f"/logs/rsna/test/{scheme}/"
 
-    with_any = True
+        with_any = True
 
-    if with_any:
-        num_classes = 6
-        target_cols = LABEL_COLS
-    else:
-        num_classes = 5
-        target_cols = LABEL_COLS_WITHOUT_ANY
+        if with_any:
+            num_classes = 6
+            target_cols = LABEL_COLS
+        else:
+            num_classes = 5
+            target_cols = LABEL_COLS_WITHOUT_ANY
 
-    # test_preds = 0
+        # test_preds = 0
 
-    model = CNNFinetuneModels(
-        model_name=backbone,
-        num_classes=num_classes,
-        in_chans=3
-    )
+        model = CNNFinetuneModels(
+            model_name=backbone,
+            num_classes=num_classes,
+        )
 
-    ckp = os.path.join(log_dir, f"checkpoints/best.pth")
-    checkpoint = torch.load(ckp)
-    model.load_state_dict(checkpoint['model_state_dict'])
-    model = nn.DataParallel(model)
-    model = model.to(device)
+        ckp = os.path.join(log_dir, f"checkpoints/best.pth")
+        checkpoint = torch.load(ckp)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        model = nn.DataParallel(model)
+        model = model.to(device)
 
-    print("*" * 50)
-    print(f"checkpoint: {ckp}")
+        print("*" * 50)
+        print(f"checkpoint: {ckp}")
 
-    test_dataset = RSNADataset(
-        csv_file=test_csv,
-        root=test_root,
-        with_any=with_any,
-        transform=valid_aug(image_size),
-        mode="test"
-    )
+        augs = test_tta(image_size)
+        test_preds = 0
 
-    test_loader = DataLoader(
-        dataset=test_dataset,
-        batch_size=32,
-        shuffle=False,
-        num_workers=8,
-    )
+        for name, aug in augs.items():
+            print("Augmentation: {}".format(name))
 
-    test_preds = predict(model, test_loader) / 2
+            test_dataset = RSNADataset(
+                csv_file=test_csv,
+                root=test_root,
+                with_any=with_any,
+                transform=aug,
+                mode="test"
+            )
 
-    os.makedirs(f"/logs/prediction/{scheme}", exist_ok=True)
-    np.save(f"/logs/prediction/{scheme}/test_{fold}.npy", test_preds)
+            test_loader = DataLoader(
+                dataset=test_dataset,
+                batch_size=32,
+                shuffle=False,
+                num_workers=8,
+            )
 
-    test_df = pd.read_csv(test_csv)
-    test_ids = test_df['ID'].values
+            test_preds += predict(model, test_loader) / 2
 
-    ids = []
-    labels = []
-    for i, id in enumerate(test_ids):
-        pred = test_preds[i]
-        for j, target in enumerate(target_cols):
-            id_target = id + "_" + target
-            ids.append(id_target)
-            labels.append(pred[j])
-        if not with_any:
-            id_target = id + "_" + "any"
-            ids.append(id_target)
-            labels.append(pred.max())
+        os.makedirs(f"/logs/prediction/{scheme}", exist_ok=True)
+        np.save(f"/logs/prediction/{scheme}/test_{fold}_tta.npy", test_preds)
 
-    submission_df = pd.DataFrame({
-        'ID': ids,
-        'Label': labels
-    })
+        test_df = pd.read_csv(test_csv)
+        test_ids = test_df['sop_instance_uid'].values
 
-    submission_df.to_csv(f"/logs/prediction/{scheme}/{scheme}.csv", index=False)
+        ids = []
+        labels = []
+        for i, id in enumerate(test_ids):
+            if not "ID" in id:
+                id = "ID_" + id
+            pred = test_preds[i]
+            for j, target in enumerate(target_cols):
+                id_target = id + "_" + target
+                ids.append(id_target)
+                labels.append(pred[j])
+            if not with_any:
+                id_target = id + "_" + "any"
+                ids.append(id_target)
+                labels.append(pred.max())
+
+        submission_df = pd.DataFrame({
+            'ID': ids,
+            'Label': labels
+        })
+
+        submission_df.to_csv(f"/logs/prediction/{scheme}/{scheme}_tta.csv", index=False)
 
 
 def predict_test_tta_ckp():

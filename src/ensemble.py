@@ -6,10 +6,12 @@ from dataset import LABEL_COLS
 
 if __name__ == '__main__':
     target_cols = LABEL_COLS
-    test_csv = "./csv/stage_1_test.csv.gz"
+    test_csv = "./csv/patient2_kfold/test.csv"
     pred_paths = [
-        '/logs/prediction/resnet34-mw-512-recheck-0/test_0.npy',
-        '/logs/prediction/resnet50-mw-512-recheck-0/test_0.npy',
+        '/logs/prediction/resnet50-mw-512-0/test_0_tta.npy',
+        '/logs/prediction/resnet50-mw-512-2/test_2_tta.npy',
+        "/logs/prediction/resnet50-mw-512-3/test_3_tta.npy",
+        "/logs/prediction/resnet50-mw-512-4/test_4_tta.npy"
         # '/logs/predictions/se_resnext50_32x4d-mw-512-recheck-0/test_0.npy',
     ]
 
@@ -20,7 +22,8 @@ if __name__ == '__main__':
     test_preds = test_preds / len(pred_paths)
 
     test_df = pd.read_csv(test_csv)
-    test_ids = test_df['ID'].values
+    test_df["sop_instance_uid"] = "ID_" + test_df["sop_instance_uid"]
+    test_ids = test_df['sop_instance_uid'].values
 
     ids = []
     labels = []
@@ -42,4 +45,4 @@ if __name__ == '__main__':
 
     os.makedirs(f"/logs/prediction/ensemble/", exist_ok=True)
 
-    submission_df.to_csv(f"/logs/prediction/ensemble/r34_r50_0.csv", index=False)
+    submission_df.to_csv(f"/logs/prediction/ensemble/resnet50-mw-512-4folds_tta.csv", index=False)

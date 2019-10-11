@@ -10,6 +10,7 @@ from optimizers import *
 # Register models
 registry.Model(CNNFinetuneModels)
 registry.Model(TIMMModels)
+registry.Model(MultiModals)
 
 # Register callbacks
 registry.Callback(MultiTaskCriterionCallback)
