@@ -139,6 +139,11 @@ class RSNADataset(Dataset):
 
         image = np.transpose(image, (2, 0, 1)).astype(np.float32)
 
+        mean = np.mean(image.reshape(-1, 3), axis=0)
+        std = np.std(image.reshape(-1, 3), axis=0)
+        image -= mean
+        image /= (std + 0.0000001)
+
         return {
             'images': image,
             'targets': label,

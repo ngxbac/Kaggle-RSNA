@@ -15,14 +15,14 @@ def train_aug(image_size):
         ], p=0.3),
         ShiftScaleRotate(shift_limit=0.05, scale_limit=0.1, rotate_limit=10),
         # ChannelDropout(),
-        Normalize()
+        # Normalize()
     ], p=1)
 
 
 def valid_aug(image_size):
     return Compose([
         Resize(*image_size),
-        Normalize()
+        # Normalize()
     ], p=1)
 
 
@@ -30,13 +30,13 @@ def test_tta(image_size):
     test_dict = {
         'normal': Compose([
             Resize(*image_size),
-            Normalize()
+            # Normalize()
         ], p=1),
 
         'hflip': Compose([
             Resize(*image_size),
             HorizontalFlip(p=1),
-            Normalize()
+            # Normalize()
         ], p=1),
         # 'rot90': Compose([
         #     Rotate(limit=(90, 90), p=1),
