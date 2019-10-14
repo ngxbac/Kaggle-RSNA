@@ -11,6 +11,7 @@ from optimizers import *
 registry.Model(CNNFinetuneModels)
 registry.Model(TIMMModels)
 registry.Model(MultiModals)
+registry.Model(EfficientNet)
 
 # Register callbacks
 registry.Callback(MultiTaskCriterionCallback)
