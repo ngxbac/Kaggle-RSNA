@@ -19,7 +19,7 @@ for fold in 0 1 2 3 4; do
         --logdir=$LOGDIR \
         --out_dir=$LOGDIR:str \
         --monitoring_params/name=${log_name}:str \
-        --model_params/model_name=${model_name}: str \
+        --model_params/model_name=${model_name}:str \
         --stages/data_params/train_csv=${train_csv}:str \
         --stages/data_params/valid_csv=${valid_csv}:str \
         --verbose
