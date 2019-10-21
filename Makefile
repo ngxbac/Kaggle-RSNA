@@ -7,8 +7,8 @@ run: ## Run container
 		--ipc=host \
 		-itd \
 		--name=${CONTAINER_NAME} \
-		-v /raid/data/kaggle/rsna/:/data \
-		-v /raid/bac/kaggle/logs/:/logs \
+		-v /home/lab/bac/kaggle_data/rsna/:/data \
+		-v /mnt/DATA2/bac_logs/:/logs \
 		-v $(shell pwd):/kaggle-rsna $(APP_NAME) bash
 
 exec: ## Run a bash in a running container

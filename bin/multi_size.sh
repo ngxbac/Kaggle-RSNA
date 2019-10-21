@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export CUDA_VISIBLE_DEVICES=2,3
+export CUDA_VISIBLE_DEVICES=0,1
 RUN_CONFIG=multi_size.yml
 
 
@@ -8,7 +8,7 @@ model_name=resnet50
 WANDB=1
 for fold in 0 1 2 3 4; do
     # Train and test csv
-    train_csv=/csv/patient2_kfold/train_$fold.csv
+    train_csv=./csv/patient2_kfold/train_$fold.csv
     valid_csv=./csv/patient2_kfold/valid_$fold.csv
 
     #stage 1
