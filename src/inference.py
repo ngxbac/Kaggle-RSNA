@@ -125,8 +125,6 @@ def predict_test():
 def get_best_checkpoints(checkpoint_dir, n_best=3, minimize_metric=True):
     files = glob.glob(f"{checkpoint_dir}/checkpoints/train512.*.pth")
     files = [file for file in files if not 'full' in file]
-    import pdb
-    pdb.set_trace()
 
     top_best_metrics = []
     for file in files:
