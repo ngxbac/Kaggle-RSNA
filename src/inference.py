@@ -39,7 +39,7 @@ def predict_test():
     image_size = [512, 512]
     backbone = "resnet50"
     # fold = 2
-    for fold in [1]:
+    for fold in [4]:
         #/logs/rsna/test/resnet50-anju-512-resume-0/checkpoints//train512.13.pth
         scheme = f"{backbone}-anjuu-512-{fold}"
 
@@ -86,12 +86,12 @@ def predict_test():
 
             test_loader = DataLoader(
                 dataset=test_dataset,
-                batch_size=32,
+                batch_size=16,
                 shuffle=False,
                 num_workers=8,
             )
 
-            test_preds += predict(model, test_loader) / 2
+            test_preds += predict(model, test_loader) / len(augs)
 
         os.makedirs(f"/logs/prediction/{scheme}", exist_ok=True)
         np.save(f"/logs/prediction/{scheme}/test_{fold}_tta.npy", test_preds)
@@ -238,6 +238,103 @@ def predict_test_tta_ckp():
         submission_df.to_csv(f"/logs/prediction/{scheme}/{scheme}_ckp_tta.csv", index=False)
 
 
+def predict_valid_tta_ckp():
+
+    test_root = "/data/png/train/adjacent-brain-cropped/"
+
+    image_size = [512, 512]
+    backbone = "resnet50"
+    # fold = 2
+    for fold in [0, 1, 2, 3, 4]:
+        test_csv = f"./csv/patient2_kfold/valid_{fold}.csv"
+        # /logs/rsna/test/resnet50-anju-512-resume-0/checkpoints//train512.13.pth
+        scheme = f"{backbone}-anjuu-512-{fold}"
+
+        log_dir = f"/logs/rsna/test/{scheme}/"
+
+        with_any = True
+
+        if with_any:
+            num_classes = 6
+            target_cols = LABEL_COLS
+        else:
+            num_classes = 5
+            target_cols = LABEL_COLS_WITHOUT_ANY
+
+        # test_preds = 0
+
+        top_best_metrics = get_best_checkpoints(log_dir, n_best=1, minimize_metric=True)
+
+        test_preds = 0
+        for best_metric in top_best_metrics:
+
+            checkpoint_path, checkpoint_metric = best_metric
+            print("*" * 50)
+            print(f"checkpoint: {checkpoint_path}")
+            print(f"Metric: {checkpoint_metric}")
+
+            model = CNNFinetuneModels(
+                model_name=backbone,
+                num_classes=num_classes,
+            )
+
+            ckp = os.path.join(log_dir, f"checkpoints/best.pth")
+            checkpoint = torch.load(ckp)
+            model.load_state_dict(checkpoint['model_state_dict'])
+            model = nn.DataParallel(model)
+            model = model.to(device)
+
+            augs = test_tta(image_size)
+
+            for name, aug in augs.items():
+                print("Augmentation: {}".format(name))
+
+                test_dataset = RSNADataset(
+                    csv_file=test_csv,
+                    root=test_root,
+                    with_any=with_any,
+                    transform=aug,
+                    mode="valid"
+                )
+
+                test_loader = DataLoader(
+                    dataset=test_dataset,
+                    batch_size=64,
+                    shuffle=False,
+                    num_workers=8,
+                )
+
+                test_preds += predict(model, test_loader) / (len(augs) * len(top_best_metrics))
+
+        os.makedirs(f"/logs/prediction/{scheme}", exist_ok=True)
+        np.save(f"/logs/prediction/{scheme}/valid_{scheme}.npy", test_preds)
+
+        test_df = pd.read_csv(test_csv)
+        test_ids = test_df['sop_instance_uid'].values
+
+        ids = []
+        labels = []
+        for i, id in enumerate(test_ids):
+            if not "ID" in id:
+                id = "ID_" + id
+            pred = test_preds[i]
+            for j, target in enumerate(target_cols):
+                id_target = id + "_" + target
+                ids.append(id_target)
+                labels.append(pred[j])
+            if not with_any:
+                id_target = id + "_" + "any"
+                ids.append(id_target)
+                labels.append(pred.max())
+
+        submission_df = pd.DataFrame({
+            'ID': ids,
+            'Label': labels
+        })
+
+        submission_df.to_csv(f"/logs/prediction/{scheme}/valid_{scheme}.csv", index=False)
+
+
 def predict_tta_window():
     test_csv = "./csv/stage_1_test.csv.gz"
 
@@ -325,4 +422,5 @@ def predict_tta_window():
 
 if __name__ == '__main__':
     # predict_test()
-    predict_test_tta_ckp()
+    # predict_test_tta_ckp()
+    predict_valid_tta_ckp()
