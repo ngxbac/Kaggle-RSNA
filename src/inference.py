@@ -56,7 +56,8 @@ def predict_test_tta_ckp():
     image_type = 'jpg'
 
     image_size = [512, 512]
-    backbone = "resnet18"
+    backbone = "alexnet"
+    normalization = True
     # fold = 2
     for fold in [0, 1, 2, 3, 4]:
         # /logs/rsna/test/resnet50-anju-512-resume-0/checkpoints//train512.13.pth
@@ -96,7 +97,7 @@ def predict_test_tta_ckp():
             model = nn.DataParallel(model)
             model = model.to(device)
 
-            augs = test_tta(image_size)
+            augs = test_tta(image_size, normalization)
 
             for name, aug in augs.items():
                 print("Augmentation: {}".format(name))
@@ -155,7 +156,8 @@ def predict_valid_tta_ckp():
     image_type = 'jpg'
 
     image_size = [512, 512]
-    backbone = "resnet18"
+    backbone = "alexnet"
+    normalization = True
     # fold = 2
     for fold in [0, 1, 2, 3, 4]:
         test_csv = f"./csv/patient2_kfold/valid_{fold}.csv"
@@ -196,7 +198,7 @@ def predict_valid_tta_ckp():
             model = nn.DataParallel(model)
             model = model.to(device)
 
-            augs = test_tta(image_size)
+            augs = test_tta(image_size, normalization)
 
             for name, aug in augs.items():
                 print("Augmentation: {}".format(name))

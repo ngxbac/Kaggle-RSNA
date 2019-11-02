@@ -8,11 +8,11 @@ if __name__ == '__main__':
     target_cols = LABEL_COLS
     test_csv = "./csv/patient2_kfold/test.csv"
     pred_paths = [
-        '/logs/prediction/resnet18-mww-512-0/test_0_ckp_tta.npy',
-        '/logs/prediction/resnet18-mww-512-1/test_1_ckp_tta.npy',
-        '/logs/prediction/resnet18-mww-512-2/test_2_ckp_tta.npy',
-        "/logs/prediction/resnet18-mww-512-3/test_3_ckp_tta.npy",
-        "/logs/prediction/resnet18-mww-512-4/test_4_ckp_tta.npy"
+        '/logs/prediction/alexnet-mww-512-0/test_0_ckp_tta.npy',
+        '/logs/prediction/alexnet-mww-512-1/test_1_ckp_tta.npy',
+        '/logs/prediction/alexnet-mww-512-2/test_2_ckp_tta.npy',
+        "/logs/prediction/alexnet-mww-512-3/test_3_ckp_tta.npy",
+        "/logs/prediction/alexnet-mww-512-4/test_4_ckp_tta.npy"
         # '/logs/predictions/se_resnext50_32x4d-mw-512-recheck-0/test_0.npy',
     ]
 
@@ -46,4 +46,4 @@ if __name__ == '__main__':
 
     os.makedirs(f"/logs/prediction/ensemble/", exist_ok=True)
 
-    submission_df.to_csv(f"/logs/prediction/ensemble/resnet18-mww-512-5folds_tta.csv", index=False)
+    submission_df.to_csv(f"/logs/prediction/ensemble/alexnet-mww-512-5folds_tta.csv", index=False)

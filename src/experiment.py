@@ -63,6 +63,7 @@ class Experiment(ConfigExperiment):
         with_any = kwargs.get('with_any', True)
         dataset_type = kwargs.get('dataset_type', 'RSNADataset')
         image_type = kwargs.get('image_type', 'jpg')
+        normalization = kwargs.get('normalization', True)
         root = kwargs.get('root', None)
 
         print(f"Image Size: {image_size}")
