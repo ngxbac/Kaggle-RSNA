@@ -62,6 +62,7 @@ class Experiment(ConfigExperiment):
         valid_csv = kwargs.get('valid_csv', None)
         with_any = kwargs.get('with_any', True)
         dataset_type = kwargs.get('dataset_type', 'RSNADataset')
+        image_type = kwargs.get('image_type', 'jpg')
         root = kwargs.get('root', None)
 
         print(f"Image Size: {image_size}")
@@ -74,7 +75,8 @@ class Experiment(ConfigExperiment):
                     root=root,
                     with_any=with_any,
                     transform=transform,
-                    mode='train'
+                    mode='train',
+                    image_type=image_type
                 )
             elif dataset_type == 'RSNAMultiWindowsDataset':
                 train_set = RSNAMultiWindowsDataset(
@@ -109,7 +111,8 @@ class Experiment(ConfigExperiment):
                     root=root,
                     with_any=with_any,
                     transform=transform,
-                    mode='valid'
+                    mode='valid',
+                    image_type=image_type
                 )
             elif dataset_type == 'RSNAMultiWindowsDataset':
                 valid_set = RSNAMultiWindowsDataset(

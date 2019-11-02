@@ -4,7 +4,7 @@ export CUDA_VISIBLE_DEVICES=0,1
 RUN_CONFIG=multi_size.yml
 
 
-model_name=resnet50
+model_name=alexnet
 WANDB=1
 for fold in 0 1 2 3 4; do
     # Train and test csv
@@ -12,7 +12,7 @@ for fold in 0 1 2 3 4; do
     valid_csv=./csv/patient2_kfold/valid_$fold.csv
 
     #stage 1
-    log_name=${model_name}-mw-512-$fold
+    log_name=${model_name}-mww-512-$fold
     LOGDIR=/logs/rsna/test/${log_name}/
     USE_WANDB=${WANDB} catalyst-dl run \
         --config=./configs/${RUN_CONFIG} \

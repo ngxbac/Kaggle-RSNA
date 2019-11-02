@@ -31,6 +31,10 @@ stages:
     valid_csv: "./csv/stratified_kfold/valid_0.csv.gz"
     with_any: True
     root: "/data/stage_1_train_3w/"
+    image_type: "jpg"
+
+    # root: "/data/png/train/adjacent-brain-cropped/"
+    # image_type: "png"
 
   callbacks_params: &callbacks_params
     loss:
@@ -99,7 +103,7 @@ stages:
       min_lr: 0.00001
 
     state_params:
-      num_epochs: 8
+      num_epochs: 20
 
     callbacks_params:
       loss:
@@ -115,7 +119,9 @@ stages:
         save_n_best: 5
       early_stoping:
         callback: EarlyStoppingCallback
-        patience: 2
+        patience: 3
+#        metric: "accuracy01"
+#        minimize: False
 
     # callbacks_params: *callbacks_params
 

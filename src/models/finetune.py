@@ -70,7 +70,8 @@ def CNNFinetuneModels(model_name, pretrained=True, num_classes=6, dropout_p=None
         num_classes=num_classes,
         pretrained=pretrained,
         dropout_p=dropout_p,
-        classifier_factory=make_classifier
+        classifier_factory=make_classifier,
+        input_size=(512, 512)
     )
 
     if in_chans > 3:

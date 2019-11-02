@@ -90,7 +90,7 @@ class RSNADataset(Dataset):
     """
     Read JPG images
     """
-    def __init__(self, csv_file, root, with_any, transform, mode='train'):
+    def __init__(self, csv_file, root, with_any, transform, mode='train', image_type='jpg'):
         if isinstance(csv_file, pd.DataFrame):
             df = csv_file
         else:
@@ -117,6 +117,7 @@ class RSNADataset(Dataset):
             self.labels = df[LABEL_COLS_WITHOUT_ANY].values
         self.root = root
         self.transform = transform
+        self.image_type = image_type
 
     def __len__(self):
         return len(self.ids)
@@ -130,7 +131,7 @@ class RSNADataset(Dataset):
         if not "ID" in id:
             id = "ID_" + id
 
-        image = os.path.join(self.root, id + ".jpg")
+        image = os.path.join(self.root, id + "." + self.image_type)
         image = load_image(image)
 
         if self.transform:
