@@ -250,5 +250,5 @@ def predict_valid_tta_ckp():
 
 if __name__ == '__main__':
     # predict_test()
-    # predict_test_tta_ckp()
-    predict_valid_tta_ckp()
+    predict_test_tta_ckp()
+    # predict_valid_tta_ckp()

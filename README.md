@@ -2,7 +2,7 @@
 
 The config file includes data path, optimizer, scheduler, etc, ...
 
-In [configs/multi_size.yml](configs/multi_size.yml): 
+In each configure file: 
 - stages/data_params/root: To the folder where stores image data.
 - image_size: determine the size of image 
 
@@ -13,9 +13,24 @@ You do not need to change: `train_csv` and `valid_csv` because they are override
 
 # How to run  
 
-```bash
-bash bin/multi_size.sh 
-```
+* Train `resnet18, resnet34, resnet50, alexnet` with `3 windows (3w)` setting:
+
+    ```bash
+    bash bin/train_bac_3w.sh 
+    ``` 
+
+* Train `resnet50` with `3d` setting:
+
+    ```bash
+    bash bin/train_bac_3d.sh 
+    ``` 
+    
+* Train `densenet169` with `3 windows and crop` setting:
+
+    ```bash
+    bash bin/train_toan.sh 
+    bash bin/train_toan_resume.sh
+    ``` 
 
 where: 
 - CUDA_VISIBLE_DEVICES: GPUs number required to train. 
@@ -34,4 +49,4 @@ The best checkpoint is saved at: `${LOGDIR}/${log_name}/checkpoints/best.pth`.
 ```bash
 python src/inference.py
 ```
-Check function `predict_test` for more information, you may want to change the path, the name of model and the output path.
+Check function `predict_test_tta_ckp` for more information, you may want to change the path, the name of model and the output path.
