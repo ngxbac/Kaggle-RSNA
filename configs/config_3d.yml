@@ -33,8 +33,9 @@ stages:
 #    root: "/data/stage_1_train_3w/"
 #    image_type: "jpg"
 
-     root: "/data/png/train/adjacent-brain-cropped/"
-     image_type: "png"
+    root: "/data/png/train/adjacent-brain-cropped/"
+    image_type: "png"
+    normalization: False
 
   callbacks_params: &callbacks_params
     loss:

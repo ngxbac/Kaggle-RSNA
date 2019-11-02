@@ -50,3 +50,11 @@ The best checkpoint is saved at: `${LOGDIR}/${log_name}/checkpoints/best.pth`.
 python src/inference.py
 ```
 Check function `predict_test_tta_ckp` for more information, you may want to change the path, the name of model and the output path.
+For `3d` setting, `normalization=False`, otherwise `normalization=True` 
+
+
+# Ensemble KFOLD 
+In `src/ensemble.py`, you should change the prediction path of each fold of model and the name of output ensemble. 
+```bash
+python src/ensemble.py
+```
