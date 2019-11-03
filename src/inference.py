@@ -30,7 +30,7 @@ def predict(model, loader):
 
 
 def get_best_checkpoints(checkpoint_dir, n_best=3, minimize_metric=True):
-    files = glob.glob(f"{checkpoint_dir}/checkpoints/train512*.pth")
+    files = glob.glob(f"{checkpoint_dir}/checkpoints/best*.pth")
     files = [file for file in files if not 'full' in file]
 
     top_best_metrics = []
@@ -52,16 +52,17 @@ def predict_test_tta_ckp():
     test_csv = "./csv/patient2_kfold/test.csv"
     # test_root = "/data/stage_1_test_3w/"
     # test_root = "/data/png/test_stage_1/adjacent-brain-cropped/"
-    test_root = "/data/stage_1_test_3w/"
+    # test_root = "/data/stage_1_test_3w/"
+    test_root = "/data/stage_1_test_images_jpg_preprocessing/"
     image_type = 'jpg'
 
     image_size = [512, 512]
-    backbone = "alexnet"
+    backbone = "densenet169"
     normalization = True
     # fold = 2
     for fold in [0, 1, 2, 3, 4]:
         # /logs/rsna/test/resnet50-anju-512-resume-0/checkpoints//train512.13.pth
-        scheme = f"{backbone}-mww-512-{fold}"
+        scheme = f"{backbone}-mw-512-resume-{fold}"
 
         log_dir = f"/logs/rsna/test/{scheme}/"
 
@@ -89,6 +90,7 @@ def predict_test_tta_ckp():
             model = CNNFinetuneModels(
                 model_name=backbone,
                 num_classes=num_classes,
+                pretrained=False
             )
 
             ckp = os.path.join(log_dir, f"checkpoints/best.pth")
@@ -152,17 +154,18 @@ def predict_test_tta_ckp():
 def predict_valid_tta_ckp():
 
     # test_root = "/data/png/train/adjacent-brain-cropped/"
-    test_root = "/data/stage_1_train_3w/"
+    # test_root = "/data/stage_1_train_3w/"
+    test_root = "/data/stage_1_test_images_jpg_preprocessing/"
     image_type = 'jpg'
 
     image_size = [512, 512]
-    backbone = "alexnet"
+    backbone = "densenet169"
     normalization = True
     # fold = 2
     for fold in [0, 1, 2, 3, 4]:
         test_csv = f"./csv/patient2_kfold/valid_{fold}.csv"
         # /logs/rsna/test/resnet50-anju-512-resume-0/checkpoints//train512.13.pth
-        scheme = f"{backbone}-mww-512-{fold}"
+        scheme = f"{backbone}-mw-512-resume-{fold}"
 
         log_dir = f"/logs/rsna/test/{scheme}/"
 
