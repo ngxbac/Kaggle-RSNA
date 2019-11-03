@@ -10,20 +10,47 @@ Note:
 
 You do not need to change: `train_csv` and `valid_csv` because they are overrided by running bash file bellow. 
 
+# Preprocessing 
+The following data is used for different models.
+
+* 3 windows (3w) data:
+    ```bash
+    python src/preprocessing.py extract-images --inputdir <kaggle_input_dir> --outputdir <output_folder>
+    ```
+
+* 3 windows (3w) with crop data:
+    ```bash
+    python src/preprocessing_3w.py extract-images --inputdir <kaggle_input_dir> --outputdir <output_folder>
+    ```
+
+* 3d data:
+    ```bash
+    python src/preprocessing2.py
+    ```
+
 
 # How to run  
+* Start docker: 
+    ```bash
+    make run
+    make exec 
+    cd /kaggle-rsna/
+    ```
 
 * Train `resnet18, resnet34, resnet50, alexnet` with `3 windows (3w)` setting:
 
     ```bash
     bash bin/train_bac_3w.sh 
     ``` 
+    
+    Note: normalize=True
 
 * Train `resnet50` with `3d` setting:
 
     ```bash
     bash bin/train_bac_3d.sh 
     ``` 
+    Note: normalize=False
     
 * Train `densenet169` with `3 windows and crop` setting:
 
@@ -31,6 +58,7 @@ You do not need to change: `train_csv` and `valid_csv` because they are override
     bash bin/train_toan.sh 
     bash bin/train_toan_resume.sh
     ``` 
+    Note: normalize=True
 
 where: 
 - CUDA_VISIBLE_DEVICES: GPUs number required to train. 
